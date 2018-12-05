@@ -37,21 +37,19 @@ public class NodePanel extends JPanel{
 	
 	private static final long serialVersionUID = 1L;
 	
-	private JTextField jtf_node_code;
-	private JTextArea jta_description;
-	//@SuppressWarnings("rawtypes") 
-	private JComboBox<String> cb_language;
+	private JTextField jtfNodeCode;
+	private JTextArea jtaDescription;
+	private JComboBox<String> jcbLanguage;
 	
 	public Node node;
 	
-	boolean listener_state = false;
+	static boolean listenerState = false;
 
 	
 	/*
 	 *  CONSTRUCTORS
 	 */
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public NodePanel(Node node) {
 					
 		this.node=node;
@@ -62,30 +60,30 @@ public class NodePanel extends JPanel{
 		
 		addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				if(!node.nodeWF.start_taken && listener_state) {
+				if(!node.nodeWF.isStartTaken() && listenerState) {
 		        	NodePanel source = (NodePanel) e.getSource();
 		        	Node node = source.getNode();
 		            System.out.println("Letto: " + node);
 		            node.nodeWF.setStart(node);
-		            node.nodeWF.start_taken=true;
-		            listener_state=false;
+		            node.nodeWF.setStartTaken(true);
+		            //listenerState=false;
 		        } 
-				else if(node.nodeWF.start_taken && !node.nodeWF.end_taken && listener_state) {
+				else if(node.nodeWF.isStartTaken() && !node.nodeWF.isEndTaken() && listenerState) {
 		        	NodePanel source = (NodePanel) e.getSource();
 		        	Node node = source.getNode();
 		            System.out.println("Letto 2: " + node);
 		            node.nodeWF.setEnd(node);
-		            node.nodeWF.end_taken=true;
-		            for(Node n: node.nodeWF.nodes)
-		            n.panel.setListener_state(false);
+		            node.nodeWF.setEndTaken(true);
+		            listenerState = false;
+		            
 		            int freccia = -1;
 		            for(Transition t : node.nodeWF.transitions) {
-		            	if ((t.n1==node.nodeWF.start) && (t.n2 ==node.nodeWF.end)) {
+		            	if ((t.n1==node.nodeWF.getStart()) && (t.n2 ==node.nodeWF.getEnd())) {
 		            		freccia = t.getTranIndex();
 		            		System.out.println(freccia);
 		            	}
 		            }
-		            node.nodeWF.transitions.add(new Transition(node.nodeWF.start, node.nodeWF.end, freccia));
+		            node.nodeWF.transitions.add(new Transition(node.nodeWF.getStart(), node.nodeWF.getEnd(), freccia));
 		            node.nodeWF.panel.add(node.nodeWF.transitions.get(node.nodeWF.transitions.size()-1).panel);
 		            node.nodeWF.transitions.get(node.nodeWF.transitions.size()-1).panel.revalidate();
 		        } 
@@ -98,7 +96,7 @@ public class NodePanel extends JPanel{
 				
 		setPreferredSize(new Dimension(150, 265));
 		setMinimumSize(new Dimension(150, 265));
-		setLocation(node.getPos_x(), node.getPos_y());
+		setLocation(node.getPosX(), node.getPosY());
 		setSize(new Dimension(168, 266)); //150, 265
 		setVisible(true);
 		
@@ -109,12 +107,12 @@ public class NodePanel extends JPanel{
 			@Override
 			public void mouseDragged(MouseEvent drag) {
 				setLocation(drag.getLocationOnScreen());
-				node.setPos_x((int) getLocation().getX());
-				node.setPos_y((int) getLocation().getY());
+				node.setPosX((int) getLocation().getX());
+				node.setPosY((int) getLocation().getY());
 				
 				//refresh transitions
 				for(Transition t: node.nodeWF.transitions) {
-					if(node.node_id == t.n1.node_id || node.node_id == t.n2.node_id)
+					if(node.getNodeCode() == t.n1.getNodeCode() || node.getNodeCode() == t.n2.getNodeCode())
 						t.paintTransition();
 				}
 			}
@@ -158,7 +156,7 @@ public class NodePanel extends JPanel{
 		btnDeleteNode.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				node.nodeWF.deleteNode(node.getNode_code());
+				node.nodeWF.deleteNode(node.getNodeCode());
 			}
 		});
 		//delete node position
@@ -191,52 +189,52 @@ public class NodePanel extends JPanel{
 		/*
 		 * DESCRIPTION
 		 */
-		jta_description = new JTextArea();
-		jta_description.setText(node.getDesc());
-		jta_description.addKeyListener(new KeyAdapter() {
+		jtaDescription = new JTextArea();
+		jtaDescription.setText(node.getDesc());
+		jtaDescription.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
-				node.setDesc(jta_description.getText());
+				node.setDesc(jtaDescription.getText());
 			}
 		});
 		//description position and properties
-		jta_description.setWrapStyleWord(true);
-		jta_description.setLineWrap(true);
+		jtaDescription.setWrapStyleWord(true);
+		jtaDescription.setLineWrap(true);
 		GroupLayout gl_panel_3 = new GroupLayout(panel_3);
 		gl_panel_3.setHorizontalGroup(
 			gl_panel_3.createParallelGroup(Alignment.LEADING)
-				.addComponent(jta_description, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 136, Short.MAX_VALUE)
+				.addComponent(jtaDescription, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 136, Short.MAX_VALUE)
 		);
 		gl_panel_3.setVerticalGroup(
 			gl_panel_3.createParallelGroup(Alignment.LEADING)
-				.addComponent(jta_description, GroupLayout.DEFAULT_SIZE, 44, Short.MAX_VALUE)
+				.addComponent(jtaDescription, GroupLayout.DEFAULT_SIZE, 44, Short.MAX_VALUE)
 		);
 		panel_3.setLayout(gl_panel_3);
 		
 		/*
 		 * SELECT LANGUAGE
 		 */
-		cb_language = new JComboBox();
-		cb_language.addItemListener(new ItemListener() {
+		jcbLanguage = new JComboBox();
+		jcbLanguage.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent arg0) {
-				node.setLanguage((String) cb_language.getSelectedItem());
+				node.setLanguage((String) jcbLanguage.getSelectedItem());
 			}
 		});
-		cb_language.addMouseListener(new MouseAdapter() {
+		jcbLanguage.addMouseListener(new MouseAdapter() {
 			//aggiungi 
 		});
 		//language properties and position
-		cb_language.setModel(new DefaultComboBoxModel(new String[] {"Italiano\t\t[ITA]", "English\t\t[ENG]", "Espa\u00F1ol, Castellano \t[SPA]", "Fran\u00E7ais, Langue Fran\u00E7aise \t[FRE]", "Deutsch \t[GER]"}));
-		cb_language.setToolTipText("Italiano\t[ITA]\r\nEnglish\t[ENG]\r\nEspa\u00F1ol, Castellano [SPA]\r\nFran\u00E7ais, Langue Fran\u00E7aise [FRE]\r\nDeutsch [GER]");
+		jcbLanguage.setModel(new DefaultComboBoxModel(new String[] {"Italiano\t\t[ITA]", "English\t\t[ENG]", "Espa\u00F1ol, Castellano \t[SPA]", "Fran\u00E7ais, Langue Fran\u00E7aise \t[FRE]", "Deutsch \t[GER]"}));
+		jcbLanguage.setToolTipText("Italiano\t[ITA]\r\nEnglish\t[ENG]\r\nEspa\u00F1ol, Castellano [SPA]\r\nFran\u00E7ais, Langue Fran\u00E7aise [FRE]\r\nDeutsch [GER]");
 		GroupLayout gl_panel_2 = new GroupLayout(panel_2);
 		gl_panel_2.setHorizontalGroup(
 			gl_panel_2.createParallelGroup(Alignment.LEADING)
-				.addComponent(cb_language, 0, 136, Short.MAX_VALUE)
+				.addComponent(jcbLanguage, 0, 136, Short.MAX_VALUE)
 		);
 		gl_panel_2.setVerticalGroup(
 			gl_panel_2.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel_2.createSequentialGroup()
-					.addComponent(cb_language, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addComponent(jcbLanguage, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 		);
 		panel_2.setLayout(gl_panel_2);
@@ -244,30 +242,30 @@ public class NodePanel extends JPanel{
 		/*
 		 * NODE CODE
 		 */
-		jtf_node_code = new JTextField();
-		jtf_node_code.setText(node.getNode_code());
-		jtf_node_code.addKeyListener(new KeyAdapter() {
+		jtfNodeCode = new JTextField();
+		jtfNodeCode.setText(node.getNodeCode());
+		jtfNodeCode.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
-				node.setNode_code(jtf_node_code.getText());
+				node.setNodeCode(jtfNodeCode.getText());
 			}
 		});
-		jtf_node_code.setHorizontalAlignment(SwingConstants.CENTER);
-		jtf_node_code.setFont(new Font("Century Gothic", Font.PLAIN, 18));
-		jtf_node_code.setColumns(10);
+		jtfNodeCode.setHorizontalAlignment(SwingConstants.CENTER);
+		jtfNodeCode.setFont(new Font("Century Gothic", Font.PLAIN, 18));
+		jtfNodeCode.setColumns(10);
 		//node code position
 		GroupLayout gl_panel = new GroupLayout(panel);
 		gl_panel.setHorizontalGroup(
 			gl_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(Alignment.TRAILING, gl_panel.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(jtf_node_code, GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE)
+					.addComponent(jtfNodeCode, GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE)
 					.addContainerGap())
 		);
 		gl_panel.setVerticalGroup(
 			gl_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel.createSequentialGroup()
-					.addComponent(jtf_node_code, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addComponent(jtfNodeCode, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 		);
 		panel.setLayout(gl_panel);
@@ -283,11 +281,21 @@ public class NodePanel extends JPanel{
 		this.node = node;
 	}
 
-	public boolean isListener_state() {
-		return listener_state;
+	public boolean isListenerState() {
+		return listenerState;
 	}
-	public void setListener_state(boolean listener_state) {
-		this.listener_state = listener_state;
+	public void setListenerState(boolean listener_state) {
+		this.listenerState = listener_state;
+	}
+
+
+	public JComboBox<String> getJcbLanguage() {
+		return jcbLanguage;
+	}
+
+
+	public void setJcbLanguage(JComboBox<String> jcbLanguage) {
+		this.jcbLanguage = jcbLanguage;
 	}
 			
 }

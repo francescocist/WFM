@@ -40,8 +40,8 @@ public class Node implements Serializable{
 	public Node(WorkFlow node_WF) {
 		super();
 		this.nodeWF = node_WF;
-		this.posX = node_WF.start_x;
-		this.posY = node_WF.start_y;
+		this.posX = node_WF.getStartX();
+		this.posY = node_WF.getStartY();
 		this.nodeCode = "";
 		this.panel = new NodePanel(this);
 		

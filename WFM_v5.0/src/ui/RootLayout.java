@@ -103,9 +103,9 @@ public class RootLayout extends JFrame {
 				
 				if (n == 0) {	//save the WF option
 				
-					if(WF.file != null) {
+					if(WF.getFile() != null) {
 						try {
-							saveWF(WF.file);
+							saveWF(WF.getFile());
 						} catch (IOException | JAXBException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
@@ -138,9 +138,9 @@ public class RootLayout extends JFrame {
 		JMenuItem mntmSalva = new JMenuItem("Salva");
 		mntmSalva.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(WF.file != null) {
+				if(WF.getFile() != null) {
 					try {
-						saveWF(WF.file);
+						saveWF(WF.getFile());
 					} catch (IOException | JAXBException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -249,19 +249,18 @@ public class RootLayout extends JFrame {
 				//position assignment
 				
 				if (!WF.getNodes().isEmpty()) {
-					WF.start_x=WF.nodes.get(WF.nodes.size()-1).pos_x + 200;
-					WF.start_y=WF.nodes.get(WF.nodes.size()-1).pos_y;
-					if (WF.nodes.get(WF.nodes.size()-1).getPos_x() > 1000) {
-						WF.start_y=WF.nodes.get(WF.nodes.size()-1).pos_y + 300;
-						WF.start_x=20;
+					WF.setStartX(WF.nodes.get(WF.nodes.size()-1).getPosX() + 200);
+					WF.setStartY(WF.nodes.get(WF.nodes.size()-1).getPosY());
+					if (WF.nodes.get(WF.nodes.size()-1).getPosX() > 1000) {
+						WF.setStartY(WF.nodes.get(WF.nodes.size()-1).getPosY() + 300);
+						WF.setStartX(20);
 					}
 				}
 				
 				WF.nodes.add(new Node(WF));
 				
-				getContentPane().add(WF.nodes.get(WF.nodes.size()-1).panel);
-				WF.nodes.get(WF.nodes.size()-1).panel.revalidate();	
-				WF.next_index++;
+				getContentPane().add(WF.nodes.get(WF.nodes.size()-1).getPanel());
+				WF.nodes.get(WF.nodes.size()-1).getPanel().revalidate();	
 			}
 		});
 	
@@ -271,13 +270,12 @@ public class RootLayout extends JFrame {
 		JMenuItem mntmTransazione = new JMenuItem("Transizione");
 		mntmTransazione.addActionListener(new ActionListener() {		
 			public void actionPerformed(ActionEvent arg0) {
-				WF.start_taken=false;
-				WF.end_taken=false;
-				WF.start=null;
-				WF.end=null;
-				for(Node n: WF.nodes) {
-					n.panel.setListener_state(true);
-				}
+				WF.setStartTaken(false);
+				WF.setEndTaken(false);
+				WF.setStart(null);
+				WF.setEnd(null);
+				NodePanel.listenerState=true;
+				
 			}
 		});
 		mnAggiungi.add(mntmTransazione);
@@ -348,7 +346,7 @@ public class RootLayout extends JFrame {
 	void saveWF(File file) throws IOException, JAXBException {
 		
 		FileWriter fw = new FileWriter(file);
-		fw.write(WF.java_xml_Translate());
+		fw.write(WF.javaXmlTranslate());
 		fw.flush();
 		fw.close();
 	}

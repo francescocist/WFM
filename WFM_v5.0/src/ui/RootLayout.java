@@ -1,4 +1,4 @@
-package elements;
+package ui;
 
 import java.awt.EventQueue;
 import javax.swing.JFrame;
@@ -14,6 +14,10 @@ import java.awt.Dimension;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+
+import elements.Node;
+import elements.WorkFlow;
+
 import javax.swing.JFileChooser;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
